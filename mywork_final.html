@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>씨마스 | 내 작품 뽐내기</title>
+  <style>
+    /* Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; color: #222; background-color: #f0f2f5; }
+
+    /* GNB Top (Utility Bar) */
+    .gnb-top {
+      background: #5d1a8c; /* Purple */
+      color: #fff;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+    .gnb-top .inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 42px;
+    }
+    .gnb-top .links { display: flex; gap: 16px; }
+    .gnb-top a { color: #fff; text-decoration: none; }
+
+    /* GNB Main (Main Navigation) */
+    .gnb-main {
+      background: #fff;
+      border-bottom: 1px solid #e6e9ef;
+    }
+    .gnb-main .inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+    .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 2em; width: auto; object-fit: contain; }
+    .logo .text { font-weight: 700; color: #5d1a8c; font-size: 22px; }
+
+    .nav {
+      display: flex;
+      gap: 24px;
+    }
+    .nav a {
+      color: #1e2430;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 2px;
+      border-bottom: 2px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .nav a:hover, .nav a.active { border-color: #5d1a8c; color: #5d1a8c; }
+    .nav a .main-text {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .nav a .sub-text {
+      font-size: 12px;
+      font-weight: 400;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    /* Main Content Layout */
+    .main-content {
+      display: flex;
+      gap: 20px;
+      padding-top: 20px;
+    }
+
+    .sidebar {
+      flex: 0 0 250px;
+      background-color: #f7f7f7;
+      padding: 20px;
+      border-radius: 8px;
+      align-self: flex-start; /* Prevent sidebar from stretching */
+    }
+
+    .sidebar h3 {
+      font-size: 18px;
+      color: #5d1a8c;
+      margin-top: 0;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e6e9ef;
+    }
+
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .sidebar li {
+      margin-bottom: 8px;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 8px 10px;
+      text-decoration: none;
+      color: #333;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+
+    .sidebar a:hover {
+      background-color: #e6e9ef;
+      color: #5d1a8c;
+    }
+
+    .create-button {
+      width: 100%;
+      padding: 15px;
+      background: #5d1a8c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background-color 0.2s ease;
+    }
+    
+    .create-button:hover {
+      background: #451368;
+    }
+
+    .vertical-panels {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .panel {
+      background: #fff;
+      border: 1px solid #e6e9ef;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 100px;
+    }
+    .panel h4 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #5d1a8c;
+    }
+    .panel .placeholder {
+      font-size: 13px;
+      color: #8a93a6;
+    }
+
+    /* Gallery Area */
+    .gallery-area {
+      flex: 1;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .gallery-area h2 {
+      font-size: 24px;
+      color: #5d1a8c;
+      margin-top: 0;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e6e9ef;
+      padding-bottom: 10px;
+    }
+    
+    .thumbnail-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .thumbnail-card {
+      border: 1px solid #e6e9ef;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #fff;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      cursor: pointer;
+    }
+    
+    .thumbnail-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .thumbnail-card img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      background-color: #eee;
+    }
+    
+    .thumbnail-info {
+      padding: 15px;
+    }
+    
+    .thumbnail-title {
+      font-weight: 600;
+      font-size: 15px;
+      margin: 0 0 5px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .thumbnail-creator {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .thumbnail-type {
+      font-size: 12px;
+      color: #5d1a8c;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+
+    /* Footer */
+    footer {
+      padding: 24px 16px;
+      color: #8a93a6;
+      font-size: 13px;
+      text-align: center;
+    }
+    
+    /* Skip Link for Accessibility */
+    .skip-link { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+    .skip-link:focus { position: static; width: auto; height: auto; padding: 8px 12px; background: #5d1a8c; color: #fff; }
+  </style>
+</head>
+<body>
+  <a href="#content" class="skip-link">본문으로 바로가기</a>
+
+  <!-- GNB Top (Utility Bar) -->
+  <div class="gnb-top">
+    <div class="container inner">
+      <div class="left">
+        <a href="#">로그인</a>
+        <span aria-hidden="true">|</span>
+        <a href="#">회원가입</a>
+      </div>
+      <div class="links" aria-label="유틸 링크">
+        <a href="#">이용안내</a>
+        <a href="#">고객센터</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- GNB Main (Main Navigation) -->
+  <header class="gnb-main" role="banner">
+    <div class="container inner">
+      <a href="./index.html" class="logo" aria-label="홈">
+        <img src="./img/cmass_logo.png" alt="씨마스 로고" class="logo-img">
+        <span class="text">AI 바이브코딩 체험관</span> </a>
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="./webapp_final.html">
+          <span class="main-text">바이브코딩</span>
+          <span class="sub-text">(Web/App)</span>
+        </a>
+        <a href="./python_c_final.html">
+          <span class="main-text">바이브코딩</span>
+          <span class="sub-text">(python/C)</span>
+        </a>
+        <a href="./aiimage_final.html"> 
+          <span class="main-text">이미지 생성</span>
+          <span class="sub-text">(AI-Image)</span>
+        </a>
+        <a href="./pseudocode_final.html">
+          <span class="main-text">의사 코드 연습</span>
+          <span class="sub-text">(Pseudo-Code)</span>
+        </a>
+        <a href="./mywork_final.html">
+          <span class="main-text">내 작품 뽐내기</span>
+          <span class="sub-text">(My-Work)</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="content" class="container main-content" role="main" aria-label="내 작품 뽐내기">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <button class="create-button">새로 만들기+</button>
+      <div class="vertical-panels">
+        <div class="panel" id="my-creations">
+          <h4>내가 생성한 것</h4>
+          <div class="placeholder">아직 생성한 항목이 없습니다.</div>
+        </div>
+        <div class="panel" id="prompt-input-panel">
+          <h4>입력 프롬프트</h4>
+          <div class="placeholder">우측 입력창에서 프롬프트를 작성하세요.</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Gallery Area -->
+    <section class="gallery-area">
+      <h2>내 작품 갤러리</h2>
+      <div class="thumbnail-grid">
+        <!-- 16개의 썸네일 카드 (4x4) -->
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a9a2ff/ffffff?text=Web+App" alt="웹앱 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">나의 첫번째 웹사이트</h3>
+            <p class="thumbnail-type">바이브코딩 (Web/App)</p>
+            <p class="thumbnail-creator">만든이: 홍길동</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/ffc9a2/ffffff?text=AI+Image" alt="AI 이미지 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">우주를 나는 고양이</h3>
+            <p class="thumbnail-type">이미지 생성</p>
+            <p class="thumbnail-creator">만든이: 김철수</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a2d2ff/ffffff?text=Python" alt="파이썬 코드 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">데이터 분석 코드</h3>
+            <p class="thumbnail-type">바이브코딩 (python/C)</p>
+            <p class="thumbnail-creator">만든이: 이영희</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a2ffb4/ffffff?text=Pseudo-Code" alt="의사코드 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">정렬 알고리즘</h3>
+            <p class="thumbnail-type">의사 코드 연습</p>
+            <p class="thumbnail-creator">만든이: 박민준</p>
+          </div>
+        </div>
+         <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/ffc9a2/ffffff?text=AI+Image" alt="AI 이미지 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">미래 도시 풍경</h3>
+            <p class="thumbnail-type">이미지 생성</p>
+            <p class="thumbnail-creator">만든이: 홍길동</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a9a2ff/ffffff?text=Web+App" alt="웹앱 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">오늘의 할일 앱</h3>
+            <p class="thumbnail-type">바이브코딩 (Web/App)</p>
+            <p class="thumbnail-creator">만든이: 김철수</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a2ffb4/ffffff?text=Pseudo-Code" alt="의사코드 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">길찾기 로직</h3>
+            <p class="thumbnail-type">의사 코드 연습</p>
+            <p class="thumbnail-creator">만든이: 이영희</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a2d2ff/ffffff?text=C+Code" alt="C언어 코드 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">간단한 게임 만들기</h3>
+            <p class="thumbnail-type">바이브코딩 (python/C)</p>
+            <p class="thumbnail-creator">만든이: 박민준</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a2d2ff/ffffff?text=Python" alt="파이썬 코드 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">자동화 스크립트</h3>
+            <p class="thumbnail-type">바이브코딩 (python/C)</p>
+            <p class="thumbnail-creator">만든이: 홍길동</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/ffc9a2/ffffff?text=AI+Image" alt="AI 이미지 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">바다 속 산호초</h3>
+            <p class="thumbnail-type">이미지 생성</p>
+            <p class="thumbnail-creator">만든이: 이영희</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a9a2ff/ffffff?text=Web+App" alt="웹앱 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">포트폴리오 페이지</h3>
+            <p class="thumbnail-type">바이브코딩 (Web/App)</p>
+            <p class="thumbnail-creator">만든이: 박민준</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a2ffb4/ffffff?text=Pseudo-Code" alt="의사코드 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">사용자 인증 순서도</h3>
+            <p class="thumbnail-type">의사 코드 연습</p>
+            <p class="thumbnail-creator">만든이: 김철수</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a9a2ff/ffffff?text=Web+App" alt="웹앱 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">날씨 정보 앱</h3>
+            <p class="thumbnail-type">바이브코딩 (Web/App)</p>
+            <p class="thumbnail-creator">만든이: 이영희</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a2d2ff/ffffff?text=Python" alt="파이썬 코드 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">웹 크롤러</h3>
+            <p class="thumbnail-type">바이브코딩 (python/C)</p>
+            <p class="thumbnail-creator">만든이: 박민준</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/ffc9a2/ffffff?text=AI+Image" alt="AI 이미지 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">사이버펑크 도시</h3>
+            <p class="thumbnail-type">이미지 생성</p>
+            <p class="thumbnail-creator">만든이: 홍길동</p>
+          </div>
+        </div>
+        <div class="thumbnail-card">
+          <img src="https://placehold.co/400x240/a2ffb4/ffffff?text=Pseudo-Code" alt="의사코드 썸네일">
+          <div class="thumbnail-info">
+            <h3 class="thumbnail-title">데이터베이스 설계</h3>
+            <p class="thumbnail-type">의사 코드 연습</p>
+            <p class="thumbnail-creator">만든이: 김철수</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="container" role="contentinfo" aria-label="푸터">
+    © <span id="y"></span> TeachingSaem. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
+
+

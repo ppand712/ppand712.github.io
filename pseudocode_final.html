@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>씨마스 | AI 바이브코딩 체험관 - 의사 코드 연습</title>
+  <style>
+    /* 리셋 */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", "Helvetica Neue", Arial, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; color: #222; }
+
+    /* 1차 GNB (유틸바) */
+    .gnb-top {
+      background: #5d1a8c;
+      color: #fff;
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;   
+      padding: 0 16px;
+    }
+    .gnb-top .inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 42px;
+    }
+    .gnb-top .links { display: flex; gap: 16px; }
+    .gnb-top a { color: #fff; text-decoration: none; }
+
+    /* 2차 GNB (메인 내비) */
+    .gnb-main {
+      background: #fff;
+      border-bottom: 1px solid #e6e9ef;
+    }
+    .gnb-main .inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+    .logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-img { height: 2em; width: auto; object-fit: contain; }
+    .logo .text { font-weight: 700; color: #5d1a8c; font-size: 22px; }
+
+    .nav {
+      display: flex;
+      gap: 24px;
+    }
+    .nav a {
+      color: #1e2430;
+      text-decoration: none;
+      font-weight: 600;
+      padding: 8px 2px;
+      border-bottom: 2px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .nav a:hover { border-color: #5d1a8c; color: #5d1a8c; }
+    .nav a.current-page { border-color: #5d1a8c; color: #5d1a8c; }
+    .nav a .main-text {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .nav a .sub-text {
+      font-size: 12px;
+      font-weight: 400;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    /* 본문 레이아웃 */
+    .main-content {
+      display: flex;
+      gap: 20px;
+      padding-top: 20px;
+    }
+
+    .sidebar {
+      flex: 0 0 250px;
+      background-color: #f7f7f7;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    .sidebar h3 {
+      font-size: 18px;
+      color: #5d1a8c;
+      margin-top: 0;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e6e9ef;
+    }
+    .sidebar ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+    .sidebar a {
+      display: block;
+      padding: 8px 10px;
+      text-decoration: none;
+      color: #333;
+      border-radius: 6px;
+      transition: background-color 0.2s ease;
+    }
+    .sidebar a:hover {
+      background-color: #e6e9ef;
+      color: #5d1a8c;
+    }
+
+    /* 새로 만들기+ 버튼 스타일 */
+    .create-button {
+      width: 100%;
+      padding: 15px;
+      background: #5d1a8c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background-color 0.2s ease;
+    }
+    .create-button:hover {
+      background: #451368;
+    }
+
+    /* 패널들을 세로로 배치 */
+    .vertical-panels {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .panel {
+      background: #fff;
+      border: 1px solid #e6e9ef;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 100px;
+    }
+    .panel h4 {
+      margin: 0 0 10px 0;
+      font-size: 14px;
+      color: #5d1a8c;
+    }
+    .panel .placeholder {
+      font-size: 13px;
+      color: #8a93a6;
+    }
+
+    /* 메인 컨텐츠 영역 */
+    .pseudocode-area {
+      flex: 1;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .pseudocode-area h2 {
+      font-size: 24px;
+      color: #5d1a8c;
+      margin-top: 0;
+      margin-bottom: 20px;
+    }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .input-group textarea {
+      flex: 1;
+      min-height: 120px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      resize: vertical;
+    }
+    .input-group button {
+      padding: 12px 20px;
+      background-color: #5d1a8c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .input-group button:hover {
+      background-color: #451368;
+    }
+    
+    .example-prompts h3 {
+        font-size: 18px;
+        color: #5d1a8c;
+        margin-top: 0;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+    /* 프롬프트 예시 배너 */
+    .example-prompts-container {
+      margin-bottom: 20px;
+    }
+    .example-prompts {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+    .prompt-item {
+        flex: 1 1 18%; /* 한 줄에 5개씩 (5*18% = 90% + 10% gap) */
+        background-color: #f0f0f0;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        font-size: 14px;
+        color: #555;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        text-align: center;
+        white-space: normal; /* 여러 줄 허용 */
+        word-break: keep-all; /* 단어 단위 줄 바꿈 */
+    }
+    .prompt-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .result-container {
+      padding: 20px;
+      border: 1px solid #eee;
+      border-radius: 8px;
+      min-height: 200px;
+      background-color: #fafafa;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+    .result-container pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: monospace;
+        font-size: 14px;
+        width: 100%;
+        margin: 0;
+    }
+    .result-container .placeholder {
+        text-align: center;
+        color: #8a93a6;
+    }
+    .result-container .loading {
+        font-style: italic;
+        color: #5d1a8c;
+    }
+    
+    /* 푸터(선택/빈 상태) */
+    footer {
+      padding: 24px 16px;
+      color: #8a93a6;
+      font-size: 13px;
+      text-align: center;
+    }
+    
+    /* 접근성용 스킵 링크 */
+    .skip-link { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+    .skip-link:focus { position: static; width: auto; height: auto; padding: 8px 12px; background: #5d1a8c; color: #fff; }
+  </style>
+</head>
+<body>
+  <a href="#content" class="skip-link">본문으로 바로가기</a>
+
+  <!-- 1차 GNB (상단 유틸바) -->
+  <div class="gnb-top">
+    <div class="container inner">
+      <div class="left">
+        <a href="#">로그인</a>
+        <span aria-hidden="true">|</span>
+        <a href="#">회원가입</a>
+      </div>
+      <div class="links" aria-label="유틸 링크">
+        <a href="#">이용안내</a>
+        <a href="#">고객센터</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2차 GNB (메인 내비게이션) -->
+  <header class="gnb-main" role="banner">
+    <div class="container inner">
+      <a href="./index.html" class="logo" aria-label="홈">
+        <img src="./img/cmass_logo.png" alt="씨마스 로고" class="logo-img">
+        <span class="text">AI 바이브코딩 체험관</span> </a>
+      <nav class="nav" aria-label="주요 메뉴">
+        <a href="./webapp_final.html">
+          <span class="main-text">바이브코딩</span>
+          <span class="sub-text">(Web/App)</span>
+        </a>
+        <a href="./python_c_final.html">
+          <span class="main-text">바이브코딩</span>
+          <span class="sub-text">(python/C)</span>
+        </a>
+        <a href="./aiimage_final.html"> 
+          <span class="main-text">이미지 생성</span>
+          <span class="sub-text">(AI-Image)</span>
+        </a>
+        <a href="./pseudocode_final.html">
+          <span class="main-text">의사 코드 연습</span>
+          <span class="sub-text">(Pseudo-Code)</span>
+        </a>
+        <a href="./mywork_final.html">
+          <span class="main-text">내 작품 뽐내기</span>
+          <span class="sub-text">(My-Work)</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- 본문 -->
+  <main id="content" class="container main-content" role="main" aria-label="의사 코드 연습 본문">
+    <div class="sidebar">
+      <button class="create-button">새로 만들기+</button>
+      <div class="vertical-panels">
+        <div class="panel" id="my-creations">
+          <h4>내가 생성한 것</h4>
+          <div class="placeholder">아직 생성한 항목이 없습니다.</div>
+        </div>
+        <div class="panel" id="prompt-input-panel">
+          <h4>입력 프롬프트</h4>
+          <div class="placeholder">우측 입력창에서 알고리즘을 작성하세요.</div>
+        </div>
+      </div>
+    </div>
+    <div class="pseudocode-area">
+      <h2>의사 코드 연습</h2>
+      <div class="input-group">
+        <textarea id="prompt-input" placeholder="예) 두 수의 합을 계산하여 출력하는 알고리즘을 만들어줘."></textarea>
+        <button id="generate-button">단계 구분 및 생성</button>
+      </div>
+      
+      <div class="example-prompts-container">
+        <h3>예시 알고리즘 주제</h3>
+        <div class="example-prompts">
+            <div class="prompt-item" data-prompt="배열에서 가장 큰 숫자를 찾는 알고리즘을 만들어줘.">
+                배열에서<br>가장 큰 수 찾기
+            </div>
+            <div class="prompt-item" data-prompt="사용자로부터 받은 숫자가 소수인지 판별하는 알고리즘을 만들어줘.">
+                입력된 숫자가<br>소수인지 확인하기
+            </div>
+            <div class="prompt-item" data-prompt="입력된 문자열을 거꾸로 뒤집는 알고리즘을 만들어줘.">
+                문자열을<br>뒤집기
+            </div>
+            <div class="prompt-item" data-prompt="입력된 양의 정수의 팩토리얼을 계산하는 알고리즘을 만들어줘.">
+                숫자의<br>팩토리얼 계산
+            </div>
+            <div class="prompt-item" data-prompt="주어진 문자열에 포함된 모음(a, e, i, o, u)의 개수를 세는 알고리즘을 만들어줘.">
+                문자열에서<br>모음 개수 세기
+            </div>
+            <div class="prompt-item" data-prompt="정렬된 배열에서 특정 값을 찾는 이진 탐색 알고리즘을 만들어줘.">
+                정렬된 배열에서<br>이진 탐색
+            </div>
+            <div class="prompt-item" data-prompt="1부터 100까지의 숫자 중에서 모든 짝수의 합을 구하는 알고리즘을 만들어줘.">
+                특정 범위 내<br>짝수의 합 구하기
+            </div>
+            <div class="prompt-item" data-prompt="달러 금액을 입력받아 현재 환율을 적용하여 원화로 변환하는 알고리즘을 만들어줘.">
+                환율 계산하기<br>(달러 → 원화)
+            </div>
+            <div class="prompt-item" data-prompt="피보나치 수열의 N번째 항을 계산하는 알고리즘을 만들어줘.">
+                피보나치 수열<br>계산
+            </div>
+            <div class="prompt-item" data-prompt="두 개의 배열에 공통으로 포함된 요소를 찾는 알고리즘을 만들어줘.">
+                두 배열의<br>교집합 찾기
+            </div>
+        </div>
+      </div>
+
+      <div id="result-container" class="result-container">
+        <p class="placeholder">생성된 의사 코드가 여기에 표시됩니다.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="container" role="contentinfo" aria-label="푸터">
+    © <span id="y"></span> TeachingSaem. All rights reserved.
+  </footer>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+
+    const generateButton = document.getElementById('generate-button');
+    const promptInput = document.getElementById('prompt-input');
+    const resultContainer = document.getElementById('result-container');
+    const examplePrompts = document.querySelector('.example-prompts');
+
+    generateButton.addEventListener('click', generatePseudocode);
+    promptInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        generatePseudocode();
+      }
+    });
+
+    examplePrompts.addEventListener('click', (e) => {
+        if (e.target.classList.contains('prompt-item')) {
+            promptInput.value = e.target.dataset.prompt;
+            generatePseudocode();
+        }
+    });
+
+    async function generatePseudocode() {
+        const prompt = promptInput.value.trim();
+        if (!prompt) {
+            resultContainer.innerHTML = `<p class="placeholder">알고리즘 설명을 입력해주세요.</p>`;
+            return;
+        }
+
+        resultContainer.innerHTML = `<p class="loading">의사 코드 생성 중...</p>`;
+
+        // Gemini API 호출을 위한 설정
+        const systemPrompt = "You are an expert in algorithms and pseudo-code. Convert the user's request into a clear, step-by-step pseudo-code. Use simple and concise language. Each step should be a separate line. Only provide the pseudo-code, no additional text or explanation. Use Korean language and symbols for the pseudo-code.";
+        const userQuery = `"${prompt}"에 대한 의사 코드를 생성해줘.`;
+
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        
+        const payload = {
+            contents: [{ parts: [{ text: userQuery }] }],
+            systemInstruction: {
+                parts: [{ text: systemPrompt }]
+            },
+        };
+
+        let retries = 0;
+        const maxRetries = 3;
+        const baseDelay = 1000;
+
+        while (retries < maxRetries) {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.status === 429) {
+                    retries++;
+                    const delay = baseDelay * Math.pow(2, retries - 1);
+                    console.warn(`Too many requests. Retrying in ${delay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
+                }
+
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text || '의사 코드를 생성할 수 없습니다.';
+                
+                const modifiedText = `시작\n${text}\n끝`;
+                
+                resultContainer.innerHTML = `<pre>${modifiedText}</pre>`;
+                break; // 성공하면 루프 종료
+            } catch (error) {
+                resultContainer.innerHTML = `<p class="placeholder">오류: ${error.message}</p>`;
+                console.error(error);
+                break; // 오류 발생 시 루프 종료
+            }
+        }
+    }
+  </script>
+</body>
+</html>
